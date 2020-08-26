@@ -6,7 +6,6 @@ import {
   format,
   startOfWeek,
   addDays,
-  subDays,
   startOfMonth,
   endOfMonth,
   endOfWeek,
@@ -22,7 +21,6 @@ import {
 } from "date-fns";
 import AddEventModal from "./add-event";
 import "./Calendar.css";
-import { grey, red } from "@material-ui/core/colors";
 
 const EVENT_LIMIT = 5;
 
@@ -30,6 +28,8 @@ class Calendar extends Component {
   constructor() {
     super();
     this.state = {
+      fabPressed: true,
+      displayEditButton: true,
       currentMonth: new Date(),
       currentYear: new Date(),
       selectedDate: new Date(),
@@ -37,8 +37,17 @@ class Calendar extends Component {
       dateObject: moment(),
       events: [],
       showEventModal: false,
-      eventToEdit: {}
+      eventToEdit: {},
+      eventToShow: {}
     };
+  }
+
+  selectMonth() {
+    console.log("month")
+  }
+
+  selectYear() {
+    return null;
   }
 
   year = () => {
@@ -50,13 +59,14 @@ class Calendar extends Component {
   };
 
   componentDidMount() {
-    
     let events =
       localStorage.getItem("CalendarEvents") !== ("undefined" && null)
         ? JSON.parse(localStorage.getItem("CalendarEvents"))
-        : [];
+        : []
     this.setState({ events: events });
-  }
+    console.log(events)
+    console.log(this.state.events)
+  } 
 
   renderHeader() {
     return (
@@ -67,12 +77,13 @@ class Calendar extends Component {
           </div>
         </div>
         <div className="col col-center">
-          <span>
-            {this.month()} {this.year()}
+          <span >
+              <div style={{float:"left", marginLeft: "40%", pointerEvents: "fill", cursor: "pointer"}} onClick={this.selectMonth}>{this.month()}</div>
+              <div style={{float: "right", marginRight: "40%", cursor: "pointer"}} onClick={this.selectYear}>{this.year()}</div>
           </span>
         </div>
-        <div className="col col-end" onClick={this.nextMonth}>
-          <div className="icon">chevron_right</div>
+        <div className="col col-end">
+          <div className="icon" onClick={this.nextMonth}>chevron_right</div>
         </div>
       </div>
     );
@@ -92,14 +103,12 @@ class Calendar extends Component {
   }
 
   renderCells() {
-    const { currentMonth, selectedDate, events, currentYear, disabledDate } = this.state;
+    const { currentMonth, selectedDate, events, currentYear } = this.state;
     const monthStart = startOfMonth(currentMonth);
     const yearStart = startOfYear(currentYear);
     const monthEnd = endOfMonth(monthStart);
-    const yearEnd = endOfYear(yearStart);
     const startDate = startOfWeek(monthStart);
     const endDate = endOfWeek(monthEnd);
-    const endYear = endOfYear(yearEnd);
     const dateFormat = "d";
     const rows = [];
 
@@ -137,6 +146,9 @@ class Calendar extends Component {
                         onClick={() => this.editEvent(e)}
                         key={i}
                         className="event-data"
+                        data-toggle="tooltip"
+                              data-placement="top"
+                              title="Click to Edit"
                       >
                         {e.startTime} - {e.endTime} -{">"} {e.title}
                       </div>
@@ -149,7 +161,6 @@ class Calendar extends Component {
                   <Fab
                     color="primary"
                     disabled={this.state.disabled}
-                    className=""
                     size="small"
                     aria-label="add"
                     onClick={() => this.onAddEventClick(cloneDay)}
@@ -176,7 +187,11 @@ class Calendar extends Component {
   }
 
   editEvent = e => {
-    this.setState({ eventToEdit: e }, this.toggleModal);
+    this.setState({
+      eventToEdit: e,
+      displayEditButton: true,
+      fabPressed: false
+    }, this.toggleModal);
   };
 
   nextMonth = () => {
@@ -226,8 +241,19 @@ class Calendar extends Component {
     this.setState(newState);
   };
 
+  toggleInfoModal = () => {
+    const { showInfoModal } = this.state;
+    const newState = { showInfoModal: !showInfoModal };
+    if (showInfoModal) {
+      newState.eventToShow = {};
+    }
+    this.setState(newState);
+  }
+
   onAddEventClick = ( date ) => {   
-    this.setState({ 
+    this.setState({
+      fabPressed: true,
+      displayEditButton: false,
       selectedDate: date
     });
     const { events } = this.state;
@@ -253,9 +279,8 @@ class Calendar extends Component {
       events.splice(eventIndex, 1);
       this.setState({ events }, () => {
         this.toggleModal();
-        const { events } = this.state;
       });
-      localStorage.removeItem(id);
+      localStorage.setItem("CalendarEvents", JSON.stringify(events));
     }
   };
 
@@ -302,6 +327,8 @@ class Calendar extends Component {
       <div className="calendar">
         {showEventModal && (
           <AddEventModal
+            fabPressed = {this.state.fabPressed}
+            displayEditButton={this.state.displayEditButton}
             showModal={showEventModal}
             toggleModal={this.toggleModal}
             handleFormSubmit={this.handleFormSubmit}

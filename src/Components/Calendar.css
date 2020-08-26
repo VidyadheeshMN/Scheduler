@@ -29,7 +29,7 @@
   --border-color: #eee;
   --bg-color: #f9f9f9;
   --neutral-color: #fff;
-  --disabled-cell-color: lightgray;
+  --disabled-cell-color: rgb(218, 218, 218);
 }
 
 /* GENERAL */
@@ -173,7 +173,7 @@ main {
 
 .calendar .body .selected {
   border-image-slice: 1;
-  background-color: lightblue;
+  background: lightblue;
 }
 
 .calendar .body .row {
@@ -190,16 +190,20 @@ main {
 
 .calendar .body .cell .number {
   position: absolute;
-  font-size: 82.5%;
   line-height: 1;
   top: 0.75em;
+  font-size: 385%;
   right: 0.75em;
   font-weight: 700;
 }
 
+.number::after {
+  z-index: -1;
+}
+
 .calendar .body .disabled {
   background: var(--disabled-cell-color);
-  pointer-events: none;
+  pointer-events: visible;
 }
 
 .calendar .body .cell .bg {

@@ -3,15 +3,13 @@ import Modal  from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
 import "./add-event.css";
-
-const required = (val) => val && val.length;
 
 class AddEventModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      enableEditing: true,
       errorTitleField: false,
       errorStartTimeField: false,
       errorEndTimeField: false,
@@ -25,6 +23,7 @@ class AddEventModal extends Component {
       handleFormSubmit: this.props.handleFormSubmit,
       onRemoveEventClick: this.props.onRemoveEventClick
     };
+    this.enableEdit = this.enableEdit.bind(this);
   }
 
   submitForm = e => {
@@ -52,7 +51,7 @@ class AddEventModal extends Component {
   setTitle = t => {
     if(t === ""){
       this.setState({
-        errorTitleField: !this.state.errorField,
+        errorTitleField: !this.state.errorTitleField,
         titleErrormsg: "This field is required"
       })
     } 
@@ -121,8 +120,16 @@ class AddEventModal extends Component {
     }));
   };
 
+  enableEdit(e){
+    e.preventDefault();
+    this.setState({
+      enableEditing: false
+    })
+  }
+
   componentDidMount() {
     this.setState({
+      enableEdit: false,
       errorTitleField: true,
       errorEndTimeField: true,
       errorStartTimeField: true
@@ -151,6 +158,7 @@ class AddEventModal extends Component {
             <form onSubmit={this.submitForm}>
               <div>
                 <TextField
+                  disabled={this.state.enableEditing && !this.props.fabPressed}
                   error={this.state.errorTitleField}
                   helperText={this.state.titleIsValid}
                   required
@@ -161,11 +169,11 @@ class AddEventModal extends Component {
                   fullWidth
                   margin="normal"
                   onChange={e => this.setTitle(e.target.value)}
-                  onBlur={e => this.setTitle(e.target.value)}
                 />
               </div>
               <div>
                 <TextField
+                  disabled={this.state.enableEditing && !this.props.fabPressed}
                   id={description}
                   label="Event Description"
                   defaultValue={description}
@@ -177,6 +185,7 @@ class AddEventModal extends Component {
               </div>
               <div>
                 <TextField
+                  disabled={this.state.enableEditing && !this.props.fabPressed}
                   required
                   error= {this.state.errorStartTimeField}
                   helperText= {this.state.startTimeIsValid} 
@@ -194,11 +203,11 @@ class AddEventModal extends Component {
                   }}
                   onChange={e => this.setStartTime(e.target.value)}
                 />
-
                 <TextField
+                  disabled={this.state.enableEditing && !this.props.fabPressed}
                   required
                   error= {this.state.errorEndTimeField}
-                  helperText= {this.state.endTimeIsValid} 
+                  helperText= {this.state.endTimeIsValid}
                   id={endTime}
                   type="time"
                   label="End Time"
@@ -214,7 +223,6 @@ class AddEventModal extends Component {
                   onChange={e => this.setEndTime(e.target.value)}
                 />
              
-             
               </div>
               <div className="event-button">
                   <Button
@@ -226,14 +234,17 @@ class AddEventModal extends Component {
                   >
                     Save This Event
                   </Button>
-                  
-                  <Button
+                  {this.props.displayEditButton ? <Button
                     variant="contained"
                     color="primary"
-                    onClick={this.removeEvent}
-                  >
-                    Remove This Event
-                  </Button>
+                    onClick={this.removeEvent}>Remove This Event</Button> : null}
+
+                  {this.props.displayEditButton ? <Button
+                    disabled={!this.state.enableEditing}
+                    variant="contained"
+                    color="primary"
+                    style={{marginLeft: "16px"}}
+                    onClick={this.enableEdit}>Edit This Event</Button> : null}
               </div>
             </form>
           </div>
