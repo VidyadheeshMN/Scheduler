@@ -30,6 +30,7 @@
   --bg-color: #f9f9f9;
   --neutral-color: #fff;
   --disabled-cell-color: rgb(218, 218, 218);
+  --sunday-cell-color: rgb(255, 0, 0);
 }
 
 /* GENERAL */
@@ -78,6 +79,7 @@ main {
 
 .row {
   margin: 0;
+  height: auto;
   padding: 0;
   display: flex;
   flex-direction: row;
@@ -158,17 +160,10 @@ main {
 
 .calendar .body .cell {
   position: relative;
-  height: 9em;
-  border-right: 1px solid var(--border-color);
-  overflow: hidden;
+  min-height: 9em;
+  border: 1px solid var(--border-color);
   cursor: pointer;
   background: var(--neutral-color);
-  transition: 0.25s ease-out;
-}
-
-.calendar .body .cell:hover {
-  background: var(--bg-color);
-  transition: 0.5s ease-out;
 }
 
 .calendar .body .selected {
@@ -188,6 +183,16 @@ main {
   border-right: none;
 }
 
+.text-outline { 
+  color: white;
+  opacity: 0.4; 
+  font-size: 50px;
+  text-shadow: -1px 1px 0 #000, 
+                1px 1px 0 #000, 
+               1px -1px 0 #000,
+              -1px -1px 0 #000; 
+} 
+
 .calendar .body .cell .number {
   position: absolute;
   line-height: 1;
@@ -197,12 +202,15 @@ main {
   font-weight: 700;
 }
 
-.number::after {
-  z-index: -1;
+.calendar .body .disabled {
+  height: inherit;
+  background: var(--disabled-cell-color);
+  pointer-events: visible;
 }
 
-.calendar .body .disabled {
-  background: var(--disabled-cell-color);
+.calendar .body .sunday {
+  height: inherit;
+  color : var(--sunday-cell-color);
   pointer-events: visible;
 }
 
@@ -230,6 +238,22 @@ main {
   flex-basis: calc(100% / 7);
   width: calc(100% / 7);
 }
+
+ table.calendar-month tbody tr > * span {
+   background: black;
+  display: block;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 3px;
+  padding: 6px;
+}
+table.calendar-month tbody tr > *:hover span {
+  background: black;
+  border-color: #d0d0d0;
+  box-shadow: 0 1px 0 0 #efefef;
+}
+
 .add-event-button {
   position: absolute;
   right: 5%;
@@ -241,9 +265,11 @@ main {
   border-radius: 3px;
   margin: 2px;
   padding-left: 2px;
+  transition: 0.2s;
 }
 .event-data:hover {
   background-color: rgb(121, 141, 160);
+  transform: scale(1.2);
 }
 .language-header {
   width: 100%;
@@ -258,3 +284,53 @@ main {
   display: none;
 }
 
+@keyframes slideIn {
+  0% {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+  100% {
+    transform:translateY(0rem);
+    opacity: 1;
+  }
+  0% {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+}
+
+.animate {
+  animation-duration: 0.3s;
+  -webkit-animation-duration: 0.3s;
+  animation-fill-mode: both;
+  -webkit-animation-fill-mode: both;
+}
+
+@-webkit-keyframes slideIn {
+  0% {
+    -webkit-transform: transform;
+    -webkit-opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    -webkit-opacity: 1;
+  }
+  0% {
+    -webkit-transform: translateY(1rem);
+    -webkit-opacity: 0;
+  }
+}
+
+.slideIn {
+  -webkit-animation-name: slideIn;
+  animation-name: slideIn;
+}
+
+.dropdown-toggle::after {
+  display: none !important
+}
+
+.btn-primary {
+  background-color: #cd283c !important;
+  border: none !important;
+}

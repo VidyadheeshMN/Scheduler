@@ -37,6 +37,7 @@ class AddEventModal extends Component {
       startTime,
       endTime
     });
+    console.log(this.state.eventToEdit)
   };
 
   removeEvent = e => {
@@ -137,7 +138,7 @@ class AddEventModal extends Component {
   }
 
   render() {
-    const { title, description, startTime, endTime } = this.state.eventToEdit;
+    const { title, description, endTime, startTime } = this.state.eventToEdit;
     return (
       <div>
         <Modal

@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import { Fab } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add.js";
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
+import FormControl from '@material-ui/core/FormControl';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from 'react-select';
+import Button from '@material-ui/core/Button';
 import moment from "moment";
 import {
   format,
@@ -13,21 +19,23 @@ import {
   isSameDay,
   addMonths,
   subMonths,
-  startOfYear,
-  endOfYear,
-  addYears,
-  subYears,
-  isPast
+  setMonth,
+  isPast,
+  setYear,
+  isSunday
 } from "date-fns";
 import AddEventModal from "./add-event";
 import "./Calendar.css";
 
-const EVENT_LIMIT = 5;
+const EVENT_LIMIT = 15;
 
 class Calendar extends Component {
   constructor() {
     super();
     this.state = {
+      showMonthTable: false,
+      showYearTable: false,
+      isDropdownOpen: false,
       fabPressed: true,
       displayEditButton: true,
       currentMonth: new Date(),
@@ -35,25 +43,34 @@ class Calendar extends Component {
       selectedDate: new Date(),
       disabledDate: new Date(),
       dateObject: moment(),
+      allmonths: moment.months(),
       events: [],
       showEventModal: false,
       eventToEdit: {},
-      eventToShow: {}
+      eventToShow: {},
+      age: "",
+      open: false
     };
   }
 
-  selectMonth() {
-    console.log("month")
-  }
+  toggleOpen = () => this.setState({ isOpen: !this.state.isOpen }); 
 
-  selectYear() {
-    return null;
-  }
+  handleClose = () => {
+    this.setState({
+      open: false
+    })
+  };
+
+  handleOpen = () => {
+    this.setState({
+      open: true
+    })
+  };
 
   year = () => {
     return this.state.dateObject.format("Y");
   };
-
+  
   month = () => {
     return this.state.dateObject.format("MMMM");
   };
@@ -64,23 +81,165 @@ class Calendar extends Component {
         ? JSON.parse(localStorage.getItem("CalendarEvents"))
         : []
     this.setState({ events: events });
-    console.log(events)
-    console.log(this.state.events)
   } 
+
+  toggleDropdown = () => {
+    this.setState({openDropdown: true})
+    console.log(this.state.openDropdown)
+  }
+
+  setMonths = month => {
+    let monthNo = this.state.allmonths.indexOf(month);
+    let dateObject = Object.assign({}, this.state.dateObject);
+    dateObject = moment(dateObject).set("month", monthNo);
+    
+    this.setState({
+      currentMonth: setMonth(this.state.currentMonth, monthNo),
+      dateObject: dateObject,
+      showMonthTable: !this.state.showMonthTable
+    });
+  };
+
+  setYears = year => {
+    let dateObject = Object.assign({}, this.state.dateObject);
+    dateObject = moment(dateObject).set("year", year);
+    this.setState({
+      currentYear: setYear(this.state.currentYear, year),
+      dateObject: dateObject,
+      showYearTable: !this.state.showYearTable
+    });
+  };
+
+  YearList = props => {
+    let months = [];
+    let nextten = moment()
+      .set("year", props)
+      .add("year", 12)
+      .format("Y");
+
+    let tenyear = this.getDates(props, nextten);
+
+    tenyear.map(data => {
+      months.push(
+        <td
+          key={data}
+          className="calendar-month"
+          onClick={e => {
+            this.setYears(data);
+          }}
+        >
+          <span>{data}</span>
+        </td>
+      );
+    });
+    let rows = [];
+    let cells = [];
+
+    months.forEach((row, i) => {
+      if (i % 3 !== 0 || i == 0) {
+        cells.push(row);
+      } else {
+        rows.push(cells);
+        cells = [];
+        cells.push(row);
+      }
+    });
+    rows.push(cells);
+    let yearlist = rows.map((d, i) => {
+      return <tr>{d}</tr>;
+    });
+
+    return (
+      <table className="calendar-month">
+        <tbody>{yearlist}</tbody>
+      </table>
+    );
+  };
+
+  MonthList = props => {
+    let months = [];
+    props.data.map(data => {
+      months.push(
+        <td
+          key={data}
+          className="calendar-month"
+          onClick={e => {
+            this.setMonths(data);
+          }}
+        >
+          <span>{data}</span>
+        </td>
+      );
+    return null});
+    let rows = [];
+    let cells = [];
+
+    months.forEach((row, i) => {
+      if (i % 3 !== 0 || i === 0) {
+        cells.push(row);
+      } else {
+        rows.push(cells);
+        cells = [];
+        cells.push(row);
+      }
+    });
+    rows.push(cells);
+    let monthlist = rows.map((d) => {
+      return <tr>{d}</tr>;
+    });
+
+    return (
+      <table className="calendar-month">
+        <tbody>{monthlist}</tbody>
+      </table>
+    );
+  };
+
+  showMonth = () => {
+    this.setState({
+      showMonthTable: !this.state.showMonthTable
+    });
+  };
+
+  showYear = () => {
+    this.setState({
+      showYearTable: !this.state.showYearTable
+    });
+  };
+
+  getDates(startDate, stopDate) {
+    var dateArray = [];
+    var currentDate = moment(startDate);
+    var stopDate = moment(stopDate);
+    while (currentDate <= stopDate) {
+      dateArray.push(moment(currentDate).format("YYYY"));
+      currentDate = moment(currentDate).add(1, "year");
+    }
+    return dateArray;
+  }
 
   renderHeader() {
     return (
       <div className="header row flex-middle">
         <div className="col col-start">
-          <div className="icon" onClick={this.prevMonth}>
-            chevron_left
-          </div>
+          <div className="icon" onClick={this.prevMonth}>chevron_left</div>
         </div>
         <div className="col col-center">
-          <span >
-              <div style={{float:"left", marginLeft: "40%", pointerEvents: "fill", cursor: "pointer"}} onClick={this.selectMonth}>{this.month()}</div>
-              <div style={{float: "right", marginRight: "40%", cursor: "pointer"}} onClick={this.selectYear}>{this.year()}</div>
-          </span>
+        <span onClick={() => {this.showMonth();}}>{!this.state.showMonthTable ? (
+            <div style={{float: "left", marginLeft: "33%", cursor: "pointer"}}>
+                {this.month()}
+            </div>):<div className=""> <this.MonthList data={moment.months()} /> </div>}
+        </span>
+        {/*<span onClick={() => {this.showYear();}}>{!this.state.showYearTable ? (
+            <div style={{float: "right", marginRight: "33%", cursor: "pointer"}}>
+                {this.year()}
+            </div>):<div className=""> <this.YearList props={this.year()}/> </div>}
+        </span>*/}
+        <span onClick={() => {this.showYear();}}>
+            <div style={{float: "right", marginRight: "33%", cursor: "pointer"}}>
+                {this.year()}
+            </div>
+        </span>
         </div>
         <div className="col col-end">
           <div className="icon" onClick={this.nextMonth}>chevron_right</div>
@@ -103,9 +262,8 @@ class Calendar extends Component {
   }
 
   renderCells() {
-    const { currentMonth, selectedDate, events, currentYear } = this.state;
+    const { currentMonth, selectedDate, events } = this.state;
     const monthStart = startOfMonth(currentMonth);
-    const yearStart = startOfYear(currentYear);
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart);
     const endDate = endOfWeek(monthEnd);
@@ -114,7 +272,6 @@ class Calendar extends Component {
 
     let days = [];
     let day = startDate;
-    console.log(day)
     let formattedDate = "";
 
     while (day <= endDate ) {
@@ -124,7 +281,7 @@ class Calendar extends Component {
         });
         const cloneDay = day;
         days.push(
-          <div
+          <div 
             className={`col cell ${
               (!isSameMonth(day, currentMonth))
                 ? "disabled"
@@ -134,7 +291,7 @@ class Calendar extends Component {
             }`}
             key={day}
           >
-            <span className="number">{formattedDate}</span>
+            <span className={`number text-outline ${isSunday(day) ? "sunday" : "" }`}>{formattedDate}</span>
             {isSameMonth(day, monthStart) ? (
               <div>
                 <div>
@@ -163,8 +320,7 @@ class Calendar extends Component {
                     disabled={this.state.disabled}
                     size="small"
                     aria-label="add"
-                    onClick={() => this.onAddEventClick(cloneDay)}
-                  >
+                    onClick={() => this.onAddEventClick(cloneDay)}>
                     <AddIcon />
                   </Fab>
                 </div>
@@ -220,18 +376,6 @@ class Calendar extends Component {
     });
   };
 
-  nextYear = () => {
-    this.setState({
-      currentYear: addYears(this.state.currentYear, 1)
-    });
-  };
-
-  prevYear = () => {
-    this.setState({
-      currentYear: subYears(this.state.currentYear, 1)
-    });
-  };
-
   toggleModal = () => {
     const { showEventModal } = this.state;
     const newState = { showEventModal: !showEventModal };
@@ -261,7 +405,7 @@ class Calendar extends Component {
       events.filter(ev => isSameDay(date, new Date(ev.date))).length >=
       EVENT_LIMIT
     ) {
-      alert(`You have reached maximum events limit for the selected day`);
+      alert("You have reached maximum events limit for the selected day");
     } else {
       this.setState({ 
         selectedDate: date,  
@@ -323,6 +467,7 @@ class Calendar extends Component {
 
   render() {
     const { showEventModal, eventToEdit } = this.state;
+    
     return (
       <div className="calendar">
         {showEventModal && (
@@ -339,6 +484,7 @@ class Calendar extends Component {
         {this.renderHeader()}
         {this.renderDays()}
         {this.renderCells()}
+        {console.log(eventToEdit)}
       </div>
     );
   }
