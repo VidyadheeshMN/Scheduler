@@ -56,6 +56,12 @@ class AddEventModal extends Component {
         titleErrormsg: "This field is required"
       })
     } 
+    else if(t.match(/^[0-9]+$/i) || t === ""){
+      this.setState({
+        errorTitleField: true,
+        titleErrormsg: "Please enter alphanumeric values"
+      })
+    }
     else {
         this.setState({
           errorTitleField: this.state.errorField,
@@ -80,9 +86,9 @@ class AddEventModal extends Component {
   };
 
   setStartTime = t => {
-    if(t === ""){
+    if(t == null || t == ""){
       this.setState({
-        errorStartTimeField: !this.state.errorStartTimeField,
+        errorStartTimeField: false,
         startTimeErrorMsg: "Start Time is required"
       })
     } 
@@ -101,7 +107,7 @@ class AddEventModal extends Component {
   };
 
   setEndTime = t => {
-    if(t === ""){
+    if(t == "" || t == null){
       this.setState({
         errorEndTimeField: !this.state.errorEndTimeField,
         endTimeErrorMsg: "End Time is required"

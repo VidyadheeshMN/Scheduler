@@ -8,6 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from 'react-select';
 import Button from '@material-ui/core/Button';
 import moment from "moment";
+import { Switch, Route, withRouter, Redirect } from 'react-router-dom'
 import {
   format,
   startOfWeek,
@@ -44,6 +45,7 @@ class Calendar extends Component {
       disabledDate: new Date(),
       dateObject: moment(),
       allmonths: moment.months(),
+      isEventOpen: false,
       events: [],
       showEventModal: false,
       eventToEdit: {},
@@ -240,7 +242,9 @@ class Calendar extends Component {
                 {this.year()}
             </div>
         </span>
+        <Button onClick={() => {this.showEvents()}} style={{marginRight: "-1%", marginBottom:"-30px" ,fontSize:"15px", marginTop:"-1%", color: "White"}}>Show All Events</Button>
         </div>
+        {this.state.isEventOpen ? <Redirect to={{pathname: "/events"}} /> : null}
         <div className="col col-end">
           <div className="icon" onClick={this.nextMonth}>chevron_right</div>
         </div>
@@ -465,6 +469,13 @@ class Calendar extends Component {
     }
   };
 
+  showEvents() {
+    this.setState({
+      isEventOpen: !this.state.isEventOpen
+    });
+
+  }
+
   render() {
     const { showEventModal, eventToEdit } = this.state;
     
@@ -481,6 +492,7 @@ class Calendar extends Component {
             onRemoveEventClick={this.onRemoveEventClick}
           />
         )}
+        {}
         {this.renderHeader()}
         {this.renderDays()}
         {this.renderCells()}

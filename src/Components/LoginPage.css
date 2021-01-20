@@ -1,15 +1,13 @@
 @media all and (min-width: 480px) {
     .Login {
       padding: 60px 0;
+      background-image: url("../login_background.jpg");
+      background-size: 100%, 100%;
     }
   
     .Login form {
       margin: 0 auto;
       max-width: 320px;
+      height: 761px;
     }
-  }
-
-  body {
-    background-image: url("../login_background.jpg");
-    background-color: #cccccc;
   }
