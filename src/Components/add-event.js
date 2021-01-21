@@ -84,28 +84,28 @@ class AddEventModal extends Component {
         : []
     this.setState({ events: events });
     e.preventDefault();
-    const { id, title, description, startTime, endTime } = this.state.eventToEdit;
-    const date = this.props.selectedDate
+    const {date, id, title, description, startTime, endTime } = this.state.eventToEdit;
+    const date1 = this.props.selectedDate
     if(startTime < endTime){
-      events
-        .map(ev => {
-          if(parseInt(ev.date.substring(8,10))+1 == parseInt(date.getDate())){
-            if((startTime < ev.startTime && 
-              endTime < ev.startTime) || 
-              (startTime > ev.endTime && 
-                endTime > ev.endTime)){
-                  this.setState({
-                    isTimeValid: true
-                  });
-            }
-            else {
-              this.setState({
-                isTimeValid: false
-              });
-              alert("the present timings clash with other events");
-            }
+      for(var i = 0; i < events.length; i++){
+        if(parseInt(events[i].date.substring(8,10))+1 == parseInt(date1.getDate())){
+          if((startTime < events[i].startTime && 
+            endTime < events[i].startTime) || 
+            (startTime > events[i].endTime && 
+              endTime > events[i].endTime)){
+                this.setState({
+                  isTimeValid: true
+                });
           }
-      })
+          else if(!this.props.displayEditButton){
+            this.setState({
+              isTimeValid: false
+            });
+            alert("the present timings clash with other events");
+            break;
+          }
+        }
+      }
     }
     else{
       this.setState({
@@ -249,8 +249,6 @@ class AddEventModal extends Component {
             </center>
             <form onSubmit={this.submitForm}>
               <div>
-                {this.state.isTimeValid ? null : <p style={{color: "red"}}>please check the timings</p>}
-                {this.state.isTimeAcceptable ? null : <p style={{color: "red"}}>your timings collide with other events</p>}
                 <TextField
                   disabled={this.state.enableEditing && !this.props.fabPressed}
                   error={this.state.errorTitleField}

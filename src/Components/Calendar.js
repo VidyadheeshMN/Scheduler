@@ -483,6 +483,7 @@ class Calendar extends Component {
       <div className="calendar">
         {showEventModal && (
           <AddEventModal
+          displayEditButton = {this.state.displayEditButton}
             selectedDate = {this.state.selectedDate}
             fabPressed = {this.state.fabPressed}
             displayEditButton={this.state.displayEditButton}
@@ -497,7 +498,6 @@ class Calendar extends Component {
         {this.renderHeader()}
         {this.renderDays()}
         {this.renderCells()}
-        {console.log(eventToEdit)}
       </div>
     );
   }
