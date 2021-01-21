@@ -105,6 +105,11 @@ class AddEventModal extends Component {
             break;
           }
         }
+        else{
+          this.setState({
+            isTimeValid: true
+          });
+        }
       }
     }
     else{
