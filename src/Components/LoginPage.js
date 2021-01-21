@@ -30,7 +30,7 @@ export default function Login() {
                     pathname: "/calendar"
                   }}
                 ></Redirect>:<>
-      <h1>Calendar</h1>
+      <h1>Event Scheduler</h1>
       <Form onSubmit={handleSubmit}>
         <Form.Group size="lg" controlId="email">
           <Form.Label>Email</Form.Label>

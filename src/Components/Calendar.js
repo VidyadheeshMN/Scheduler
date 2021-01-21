@@ -47,6 +47,7 @@ class Calendar extends Component {
       allmonths: moment.months(),
       isEventOpen: false,
       events: [],
+      cloneDay: new Date(),
       showEventModal: false,
       eventToEdit: {},
       eventToShow: {},
@@ -433,7 +434,6 @@ class Calendar extends Component {
   };
 
   handleFormSubmit = ({ id, title, description, date, startTime, endTime }) => {
-    console.log(title);
     const { selectedDate, events } = this.state;
     if (id) {
       const updatedEvent = {
@@ -483,6 +483,7 @@ class Calendar extends Component {
       <div className="calendar">
         {showEventModal && (
           <AddEventModal
+            selectedDate = {this.state.selectedDate}
             fabPressed = {this.state.fabPressed}
             displayEditButton={this.state.displayEditButton}
             showModal={showEventModal}

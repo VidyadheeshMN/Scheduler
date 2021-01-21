@@ -3,12 +3,31 @@ import Modal  from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Backdrop from '@material-ui/core/Backdrop';
+import {
+  format,
+  startOfWeek,
+  addDays,
+  startOfMonth,
+  endOfMonth,
+  endOfWeek,
+  isSameMonth,
+  isSameDay,
+  addMonths,
+  subMonths,
+  setMonth,
+  isPast,
+  setYear,
+  isSunday
+} from "date-fns";
 import "./add-event.css";
 
 class AddEventModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isTimeValid: false,
+      isTimeAcceptable: false,
+      events: [],
       enableEditing: true,
       errorTitleField: false,
       errorStartTimeField: false,
@@ -17,6 +36,7 @@ class AddEventModal extends Component {
       titleErrorMsg: "Title is required",
       endTimeErrorMsg: "End Time is required",
       validationError: false,
+      timeValidation: false,
       showModal: this.props.showModal || false,
       toggleModal: this.props.toggleModal,
       eventToEdit: this.props.eventToEdit,
@@ -26,18 +46,83 @@ class AddEventModal extends Component {
     this.enableEdit = this.enableEdit.bind(this);
   }
 
+  componentDidMount() {
+    
+  }
+
+  validateTime(startTime, endTime, date) {
+    {
+        if(startTime < endTime){
+          /*if((this.state.eventToEdit.startTime < e.startTime ||
+            this.state.eventToEdit.startTime > e.endTime) &&
+            (this.state.eventToEdit.endTime < e.startTime ||
+              this.state.eventToEdit.endTime > e.endTime))
+            this.setState({
+              isTimeValid: true,
+              isTimeAcceptable: true
+            })
+          else
+            alert("Your timings collide with other events in the same day")*/
+            this.setState({
+              isTimeValid: false,
+              isTimeAcceptable: false
+            })
+        }
+        else{
+          this.setState({
+            isTimeValid: true,
+            isTimeAcceptable: true
+          })
+        }
+    }
+  }
+
   submitForm = e => {
+    let events =
+      localStorage.getItem("CalendarEvents") !== ("undefined" && null)
+        ? JSON.parse(localStorage.getItem("CalendarEvents"))
+        : []
+    this.setState({ events: events });
     e.preventDefault();
-    const { date, id, title, description, startTime, endTime } = this.state.eventToEdit;
-    this.state.handleFormSubmit({
-      id,
-      title,
-      description,
-      date,
-      startTime,
-      endTime
-    });
-    console.log(this.state.eventToEdit)
+    const { id, title, description, startTime, endTime } = this.state.eventToEdit;
+    const date = this.props.selectedDate
+    if(startTime < endTime){
+      events
+        .map(ev => {
+          if(parseInt(ev.date.substring(8,10))+1 == parseInt(date.getDate())){
+            if((startTime < ev.startTime && 
+              endTime < ev.startTime) || 
+              (startTime > ev.endTime && 
+                endTime > ev.endTime)){
+                  this.setState({
+                    isTimeValid: true
+                  });
+            }
+            else {
+              this.setState({
+                isTimeValid: false
+              });
+              alert("the present timings clash with other events");
+            }
+          }
+      })
+    }
+    else{
+      this.setState({
+        isTimeValid: false
+      });
+      alert("start time is less than or equal to end time")
+    }
+    if(this.state.isTimeValid == true){
+      this.state.handleFormSubmit({
+        id,
+        title,
+        description,
+        date,
+        startTime,
+        endTime
+      });
+    }
   };
 
   removeEvent = e => {
@@ -52,7 +137,7 @@ class AddEventModal extends Component {
   setTitle = t => {
     if(t === ""){
       this.setState({
-        errorTitleField: !this.state.errorTitleField,
+        errorTitleField: true,
         titleErrormsg: "This field is required"
       })
     } 
@@ -64,7 +149,7 @@ class AddEventModal extends Component {
     }
     else {
         this.setState({
-          errorTitleField: this.state.errorField,
+          errorTitleField: false,
           titleErrorMsg: ""
         })
     }
@@ -86,15 +171,15 @@ class AddEventModal extends Component {
   };
 
   setStartTime = t => {
-    if(t == null || t == ""){
+    if(t === null || t === ""){
       this.setState({
-        errorStartTimeField: false,
+        errorStartTimeField: true,
         startTimeErrorMsg: "Start Time is required"
       })
-    } 
+    }
     else {
         this.setState({
-          errorStartTimeField: this.state.errorStartTimeField,
+          errorStartTimeField: false,
           startTimeErrorMsg: ""
         })
     }
@@ -107,15 +192,16 @@ class AddEventModal extends Component {
   };
 
   setEndTime = t => {
-    if(t == "" || t == null){
+    if(t === "" || t === null){
       this.setState({
-        errorEndTimeField: !this.state.errorEndTimeField,
+        enableEditing: true,
+        errorEndTimeField: true,
         endTimeErrorMsg: "End Time is required"
       })
     } 
     else {
         this.setState({
-          errorEndTimeField: this.state.errorEndTimeField,
+          errorEndTimeField: false,
           endTimeErrorMsg: ""
         })
     }
@@ -130,7 +216,7 @@ class AddEventModal extends Component {
   enableEdit(e){
     e.preventDefault();
     this.setState({
-      enableEditing: false
+      enableEditing: !this.state.enableEditing
     })
   }
 
@@ -156,18 +242,19 @@ class AddEventModal extends Component {
           BackdropComponent={Backdrop}
           BackdropProps={{
             timeout: 300,
-            }}
-        >
+            }}>
           <div className="paper add-event-modal">
             <center>
               <h2 id="simple-modal-title">Edit Event Data</h2>
             </center>
             <form onSubmit={this.submitForm}>
               <div>
+                {this.state.isTimeValid ? null : <p style={{color: "red"}}>please check the timings</p>}
+                {this.state.isTimeAcceptable ? null : <p style={{color: "red"}}>your timings collide with other events</p>}
                 <TextField
                   disabled={this.state.enableEditing && !this.props.fabPressed}
                   error={this.state.errorTitleField}
-                  helperText={this.state.titleIsValid}
+                  helperText={this.state.titleErrormsg}
                   required
                   id={title}
                   label="Event Title"
@@ -195,7 +282,7 @@ class AddEventModal extends Component {
                   disabled={this.state.enableEditing && !this.props.fabPressed}
                   required
                   error= {this.state.errorStartTimeField}
-                  helperText= {this.state.startTimeIsValid} 
+                  helperText= {this.state.startTimeErrorMsg}
                   id={startTime}
                   type="time"
                   label="Start Time"
@@ -214,7 +301,7 @@ class AddEventModal extends Component {
                   disabled={this.state.enableEditing && !this.props.fabPressed}
                   required
                   error= {this.state.errorEndTimeField}
-                  helperText= {this.state.endTimeIsValid}
+                  helperText= {this.state.endTimeErrorMsg}
                   id={endTime}
                   type="time"
                   label="End Time"
@@ -233,14 +320,11 @@ class AddEventModal extends Component {
               </div>
               <div className="event-button">
                   <Button
-                    disabled= {this.state.errorTitleField && this.state.errorEndTimeField && this.state.errorStartTimeField}
+                    disabled= {(this.state.errorTitleField || (this.state.errorEndTimeField || this.state.errorStartTimeField))}
                     style= {{marginRight: "16px"}}
                     variant="contained"
                     color="primary"
-                    onClick={this.submitForm}
-                  >
-                    Save This Event
-                  </Button>
+                    onClick = {this.submitForm}>Save This Event</Button>
                   {this.props.displayEditButton ? <Button
                     variant="contained"
                     color="primary"

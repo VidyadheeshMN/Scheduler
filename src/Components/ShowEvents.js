@@ -44,14 +44,14 @@ class ShowEvents extends Component{
             >
               <thead>
                     <tr>
-                    <th>number</th>
-                    <th>title</th>
+                    <th>Number</th>
+                    <th>Title</th>
                     <th>Description</th>
-                    <th>year</th>
-                    <th>month</th>
-                    <th>date</th>
-                    <th>start time</th>
-                    <th>end time</th>
+                    <th>Year</th>
+                    <th>Month</th>
+                    <th>Date</th>
+                    <th>Start time</th>
+                    <th>End time</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,7 +74,7 @@ class ShowEvents extends Component{
                                 {moment(event.date).format('MMMM')}
                             </td>
                             <td>
-                                {event.date.substring(8,10)}
+                                {parseInt(event.date.substring(8,10))+1}
                             </td>
                             <td>
                                 {event.startTime}
