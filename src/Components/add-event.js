@@ -113,7 +113,7 @@ class AddEventModal extends Component {
           }
         }
         else if(this.props.displayEditButton){
-          if(parseInt(events[i].date.substring(8,10)) === parseInt(date1.getDate())-1){
+          if((parseInt(events[i].date.substring(8,10)) === parseInt(date1.getDate())-1) && events.length != 1){
             if((startTime < events[i].startTime && 
               endTime < events[i].startTime) || 
               (startTime > events[i].endTime && 
