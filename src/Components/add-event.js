@@ -87,7 +87,7 @@ class AddEventModal extends Component {
     const {date, id, title, description, startTime, endTime } = this.state.eventToEdit;
     const date1 = this.props.selectedDate
     if(startTime < endTime){
-      if(events.length == 0){
+      if(events.length == 0 || events.length == 1){
         this.setState({
           isTimeValid: true
         });
