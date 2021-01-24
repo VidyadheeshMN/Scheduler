@@ -88,27 +88,54 @@ class AddEventModal extends Component {
     const date1 = this.props.selectedDate
     if(startTime < endTime){
       for(var i = 0; i < events.length; i++){
-        if(parseInt(events[i].date.substring(8,10))+1 == parseInt(date1.getDate())){
-          if((startTime < events[i].startTime && 
-            endTime < events[i].startTime) || 
-            (startTime > events[i].endTime && 
-              endTime > events[i].endTime)){
-                this.setState({
-                  isTimeValid: true
-                });
+        if(!this.props.displayEditButton){
+          if(parseInt(events[i].date.substring(8,10))+1 === parseInt(date1.getDate())){
+            if((startTime < events[i].startTime && 
+              endTime < events[i].startTime) || 
+              (startTime > events[i].endTime && 
+                endTime > events[i].endTime)){
+                  this.setState({
+                    isTimeValid: true
+                  });
+            }
+            else{
+              this.setState({
+                isTimeValid: false
+              });
+              alert("timings clashes with other events on the same day")
+              break;
+            }
           }
-          else if(!this.props.displayEditButton){
+          else{
             this.setState({
-              isTimeValid: false
+              isTimeValid: true
             });
-            alert("the present timings clash with other events");
-            break;
           }
+        }
+        else if(this.props.displayEditButton){
+          if(parseInt(events[i].date.substring(8,10)) === parseInt(date1.getDate())-1){
+            if((startTime < events[i].startTime && 
+              endTime < events[i].startTime) || 
+              (startTime > events[i].endTime && 
+                endTime > events[i].endTime)){
+                  this.setState({
+                    isTimeValid: true
+                  });
+            }
+            else{
+              this.setState({
+                isTimeValid: false
+              });
+              alert("timings clashes with other events on the same day")
+              break;
+            }
         }
         else{
           this.setState({
             isTimeValid: true
           });
+        }
+
         }
       }
     }
