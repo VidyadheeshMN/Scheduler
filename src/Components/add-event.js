@@ -87,63 +87,71 @@ class AddEventModal extends Component {
     const {date, id, title, description, startTime, endTime } = this.state.eventToEdit;
     const date1 = this.props.selectedDate
     if(startTime < endTime){
-      for(var i = 0; i < events.length; i++){
-        if(!this.props.displayEditButton){
-          if(parseInt(events[i].date.substring(8,10))+1 === parseInt(date1.getDate())){
-            if((startTime < events[i].startTime && 
-              endTime < events[i].startTime) || 
-              (startTime > events[i].endTime && 
-                endTime > events[i].endTime)){
-                  this.setState({
-                    isTimeValid: true
-                  });
+      if(events.length == 0){
+        this.setState({
+          isTimeValid: true
+        });
+      }
+      else{
+        for(var i = 0; i < events.length; i++){
+          if(!this.props.displayEditButton){
+            if(parseInt(events[i].date.substring(8,10))+1 === parseInt(date1.getDate())){
+              if((startTime < events[i].startTime && 
+                endTime < events[i].startTime) || 
+                (startTime > events[i].endTime && 
+                  endTime > events[i].endTime)){
+                    this.setState({
+                      isTimeValid: true
+                    });
+              }
+              else{
+                this.setState({
+                  isTimeValid: false
+                });
+                alert("timings clashes with other events on the same day")
+                break;
+              }
             }
             else{
               this.setState({
-                isTimeValid: false
+                isTimeValid: true
               });
-              alert("timings clashes with other events on the same day")
-              break;
             }
+          }
+          else if(this.props.displayEditButton){
+            if((parseInt(events[i].date.substring(8,10)) === parseInt(date1.getDate())-1) && events.length != 1){
+              if((startTime < events[i].startTime && 
+                endTime < events[i].startTime) || 
+                (startTime > events[i].endTime && 
+                  endTime > events[i].endTime)){
+                    this.setState({
+                      isTimeValid: true
+                    });
+              }
+              else{
+                this.setState({
+                  isTimeValid: false
+                });
+                alert("timings clashes with other events on the same day")
+                break;
+              }
           }
           else{
             this.setState({
               isTimeValid: true
             });
           }
-        }
-        else if(this.props.displayEditButton){
-          if((parseInt(events[i].date.substring(8,10)) === parseInt(date1.getDate())-1) && events.length != 1){
-            if((startTime < events[i].startTime && 
-              endTime < events[i].startTime) || 
-              (startTime > events[i].endTime && 
-                endTime > events[i].endTime)){
-                  this.setState({
-                    isTimeValid: true
-                  });
-            }
-            else{
-              this.setState({
-                isTimeValid: false
-              });
-              alert("timings clashes with other events on the same day")
-              break;
-            }
-        }
-        else{
-          this.setState({
-            isTimeValid: true
-          });
-        }
-
+  
+          }
         }
       }
+      
     }
     else{
       this.setState({
         isTimeValid: false
       });
-      alert("start time is less than or equal to end time")
+      alert("start time is greater than or equal to end time")
     }
     if(this.state.isTimeValid == true){
       this.state.handleFormSubmit({
